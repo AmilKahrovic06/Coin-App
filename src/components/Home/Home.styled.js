@@ -3,20 +3,19 @@ import styled from "styled-components";
 export const Heading = styled.h1`
   text-align: center;
   font-size: 32px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
 `;
 
 export const Input = styled.input`
   width: 100%;
   padding: 10px;
   font-size: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 60px;
   border-radius: 15px;
   text-align: center;
 `;
 
 export const Container = styled.div`
-  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f2f3f7;
