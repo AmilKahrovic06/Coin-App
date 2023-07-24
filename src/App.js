@@ -2,6 +2,7 @@ import "./App.css";
 import Home from "./components/Home/Home";
 import { Routes, Route } from "react-router-dom";
 import Header from "./components/pages/header";
+import Footer from "./components/Footer/footer";
 function App() {
   return (
     <div>
@@ -14,7 +15,7 @@ function App() {
         <Route path="about_us" element={<AboutUsPage />} />
         <Route path="account_page" element={<Profile />} /> */}
       </Routes>
-      {/* <Footer /> */}
+      <Footer/>
     </div>
   );
 }
