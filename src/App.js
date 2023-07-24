@@ -6,15 +6,14 @@ function App() {
   return (
     <div>
       <Header />
-      {/* <Routes>
-        <Route index element={<Homepage />} />
-        <Route path="coins" element={<Coinspage />} />
-        <Route path="exchanges" element={<Exchanges />} />
-        <Route path="coins/:uuid" element={<Coin />} />
-        <Route path="favourite" element={<Favourite />} />
-        <Route path="about" element={<AboutUsPage />} />
-        <Route path="profile" element={<Profile />} />
-      </Routes> */}
+      <Routes>
+        <Route index element={<Home />} />
+        {/* <Route path="coins_page" element={<CoinsPage />} />
+        <Route path="exchanges_page" element={<Exchanges />} />
+        <Route path="favorite_page" element={<Favorite />} />
+        <Route path="about_us" element={<AboutUsPage />} />
+        <Route path="account_page" element={<Profile />} /> */}
+      </Routes>
       <Home/>
       {/* <Footer /> */}
     </div>
