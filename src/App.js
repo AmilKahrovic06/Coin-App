@@ -14,7 +14,6 @@ function App() {
         <Route path="about_us" element={<AboutUsPage />} />
         <Route path="account_page" element={<Profile />} /> */}
       </Routes>
-      <Home/>
       {/* <Footer /> */}
     </div>
   );
