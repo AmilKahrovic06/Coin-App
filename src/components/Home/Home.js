@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  Container,
   Heading,
   Input,
+  Container,
   Table,
   Row,
   CellHeader,
@@ -11,9 +11,14 @@ import {
   HeartIcon,
   CoinLogo,
   Notification,
+  CalculatorIcon,
+  Modal,
+  ModalContent,
+  CloseButton,
 } from "./Home.styled";
 import heartEmpty from "./images/heart-empty.png";
 import heartFull from "./images/heart-full.png";
+import calculator from "./images/calculator.png";
 
 const Home = () => {
   const [coins, setCoins] = useState([]);
@@ -22,6 +27,10 @@ const Home = () => {
   const [notification, setNotification] = useState(null);
   const [notificationLeftPosition, setNotificationLeftPosition] =
     useState("-200px");
+  const [showCalculatorModal, setShowCalculatorModal] = useState(false);
+  const [calculatorInputValue, setCalculatorInputValue] = useState(0);
+  const [calculatorResult, setCalculatorResult] = useState(0);
+  const [selectedCoin, setSelectedCoin] = useState("");
 
   useEffect(() => {
     fetchCoins();
@@ -37,7 +46,7 @@ const Home = () => {
         "tiers[0]": "1",
         orderBy: "marketCap",
         orderDirection: "desc",
-        limit: "50",
+        limit: "200",
         offset: "0",
       },
       headers: {
@@ -64,6 +73,7 @@ const Home = () => {
       console.error(error);
     }
   };
+
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
   };
@@ -91,6 +101,30 @@ const Home = () => {
     }, 3000);
   };
 
+  const openCalculatorModal = (coinName) => {
+    setSelectedCoin(coinName);
+    setShowCalculatorModal(true);
+  };
+
+  const closeCalculatorModal = () => {
+    setShowCalculatorModal(false);
+  };
+
+  const calculateResult = () => {
+    const selectedCoinData = coins.find((coin) => coin.name === selectedCoin);
+    if (selectedCoinData) {
+      const price = parseFloat(
+        selectedCoinData.price.replace(/[^0-9.-]+/g, "")
+      );
+      const result = calculatorInputValue * price;
+      setCalculatorResult(result);
+    }
+  };
+
+  useEffect(() => {
+    calculateResult();
+  }, [calculatorInputValue, selectedCoin, calculateResult]);
+
   return (
     <Container>
       <Heading>Top Cryptos</Heading>
@@ -109,6 +143,7 @@ const Home = () => {
           <CellHeader>24h Volume</CellHeader>
           <CellHeader>Market Cap</CellHeader>
           <CellHeader>Favorite</CellHeader>
+          <CellHeader>Calculator</CellHeader>
         </Row>
         {coins
           .filter((coin) =>
@@ -117,7 +152,7 @@ const Home = () => {
           .slice(0, 10)
           .map((coin) => (
             <Row key={coin.index}>
-              <Cell>{coin.index}.</Cell>
+              <Cell className="Cell">{coin.index}.</Cell>
               <Cell>
                 <CoinLogo src={coin.coinIconUrl} alt={`${coin.name} logo`} />
               </Cell>
@@ -132,6 +167,13 @@ const Home = () => {
                   onClick={() => toggleFavorite(coin.index)}
                 />
               </Cell>
+              <Cell>
+                <CalculatorIcon
+                  onClick={() => openCalculatorModal(coin.name)}
+                  src={calculator}
+                  alt="Calculator"
+                />
+              </Cell>
             </Row>
           ))}
       </Table>
@@ -144,6 +186,22 @@ const Home = () => {
           />
           {notification}
         </Notification>
+      )}
+
+      {showCalculatorModal && (
+        <Modal>
+          <ModalContent>
+            <CloseButton onClick={closeCalculatorModal}>Close</CloseButton>
+            <h2>Calculator</h2>
+            <p>Enter a value for {selectedCoin}:</p>
+            <Input
+              type="number"
+              value={calculatorInputValue}
+              onChange={(e) => setCalculatorInputValue(e.target.value)}
+            />
+            <p>Result: ${calculatorResult}</p>
+          </ModalContent>
+        </Modal>
       )}
     </Container>
   );
