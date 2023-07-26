@@ -35,7 +35,7 @@ export const Row = styled.div`
   border-radius: 5px;
 
   > div:nth-child(even) {
-    background-color: #cbcbf8;
+    background-color: #cbcbf88c;
     padding: 20px;
     border-radius: 15px;
   }
