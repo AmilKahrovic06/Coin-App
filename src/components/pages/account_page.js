@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { THead, Tbody, Row, Table, CoinLogo, TalbeContainer, Container, ProfilePage, Description, CryptoImg, CheckedCoin, Amount, BtnAdd, BtnCryptoWallet } from "./accountstayled";
+import { THead, Tbody, Row, Table, CoinLogo, TalbeContainer, Container, ProfilePage, Description, CryptoImg, CheckedCoin, Amount, BtnAdd, BtnCryptoWallet, BtnX } from "./accountstayled";
 
 
 const Profile = () => {
@@ -84,11 +84,8 @@ const Profile = () => {
     return(
         <Container>
             {showTable ? (
-                
                 <TalbeContainer>
-                    { showTable && <button onClick={hideTable}>x</button> }
-                    
-                    
+                    { showTable && <BtnX onClick={hideTable}>x</BtnX> }
                 <Table>
                     <Row>
                         <THead>Rank</THead>

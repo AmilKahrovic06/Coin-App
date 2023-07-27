@@ -11,6 +11,7 @@ export const TalbeContainer = styled.div`
  width: 76%;
  height: 97vh;
  overflow-y: scroll;
+ overflow-x: hidden;
  background-color: white;
  position: fixed;
  margin-top: 33%;
@@ -23,6 +24,7 @@ export const Table = styled.table`
  align-items: center;
  flex-direction: column;
  border-collapse: collapse;
+ margin-left: -3px;
 `;
 
 export const THead = styled.thead`
@@ -119,7 +121,7 @@ export const  BtnCryptoWallet = styled.button`
  width: 200px;
  height: 50px;
  border: none;
- background-color: white;
+ background-color: #f2f3f7;
  border: 2px solid #3d3d79;
  border-radius:0 10px 0 10px ;
  color: #3d3d79;
@@ -133,4 +135,17 @@ export const  BtnCryptoWallet = styled.button`
     border: white;
     color: white;
  }
+`
+
+export const BtnX = styled.button`
+ background-color: white;
+ color: #3d3d79;
+ border: none;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ padding: 20px;
+ font-size: x-large;
+ font-weight: bold;
+ cursor: pointer;
 `
