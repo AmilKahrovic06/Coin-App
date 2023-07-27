@@ -32,6 +32,8 @@ const Home = () => {
   const [calculatorInputValue, setCalculatorInputValue] = useState(0);
   const [calculatorResult, setCalculatorResult] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState("");
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(10);
 
   useEffect(() => {
     fetchCoins();
@@ -67,6 +69,7 @@ const Home = () => {
 
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
+    setPage(1); // Reset the page to 1 when a new search term is entered
   };
 
   const toggleFavorite = (uuid) => {
@@ -119,9 +122,7 @@ const Home = () => {
   useEffect(() => {
     calculateResult();
   }, [calculatorInputValue, selectedCoin]);
-  const filteredCoins = coins.filter((coin) =>
-    coin.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
   const renderSparklineGraph = (coin) => {
     return (
       <Sparklines
@@ -133,6 +134,16 @@ const Home = () => {
       </Sparklines>
     );
   };
+
+  // Function to filter coins based on search term
+  const filteredCoins = coins.filter((coin) =>
+    coin.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate the index of the first and last coins to display based on the current page and items per page
+  const lastIndex = page * perPage;
+  const firstIndex = lastIndex - perPage;
+  const displayedCoins = filteredCoins.slice(firstIndex, lastIndex);
 
   return (
     <Container>
@@ -155,7 +166,7 @@ const Home = () => {
           <CellHeader>Favorite</CellHeader>
           <CellHeader>Calculator</CellHeader>
         </Row>
-        {filteredCoins.map((coin) => (
+        {displayedCoins.map((coin) => (
           <Row key={coin.uuid}>
             <Cell>{coin.rank}.</Cell>
             <Cell>
