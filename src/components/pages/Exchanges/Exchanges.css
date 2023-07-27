@@ -1,0 +1,19 @@
+table {
+  margin-left: 70px;
+
+  border-radius: 25px;
+}
+h2 {
+  text-align: center;
+}
+table tr:nth-child(even) {
+  background-color: #cbcbf88c;
+}
+
+table td {
+  border-radius: 20px;
+}
+body {
+  background-color: #f2f3f7;
+  overflow-x: hidden;
+}
