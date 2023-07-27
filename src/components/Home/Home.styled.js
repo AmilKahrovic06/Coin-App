@@ -36,27 +36,27 @@ export const Row = styled.div`
 
   > div:nth-child(even) {
     background-color: #cbcbf88c;
-    padding: 20px;
+    padding: 10px;
     border-radius: 15px;
   }
 
   > div:not(:nth-child(even)) {
     background-color: white;
-    padding: 20px;
+    padding: 10px;
     border-radius: 15px;
   }
 `;
 
 export const CellHeader = styled.div`
   font-weight: bold;
-  width: 125px;
+  width: 127px;
 `;
 
 export const Cell = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 125px;
+  width: 127px;
 `;
 
 export const HeartIcon = styled.img`
