@@ -19,6 +19,7 @@ import {
 import heartEmpty from "./images/heart-empty.png";
 import heartFull from "./images/heart-full.png";
 import calculator from "./images/calculator.png";
+import { Sparklines, SparklinesLine } from "react-sparklines";
 
 const Home = () => {
   const [coins, setCoins] = useState([]);
@@ -46,7 +47,7 @@ const Home = () => {
         "tiers[0]": "1",
         orderBy: "marketCap",
         orderDirection: "desc",
-        limit: "200",
+        limit: "1000",
         offset: "0",
       },
       headers: {
@@ -58,17 +59,7 @@ const Home = () => {
     try {
       const response = await axios.request(options);
       const fetchedCoins = response.data.data.coins;
-
-      const formattedCoins = fetchedCoins.map((coin, index) => ({
-        index: index + 1,
-        name: coin.name,
-        price: coin.price,
-        volume: coin["24hVolume"],
-        marketCap: coin.marketCap,
-        coinIconUrl: coin.iconUrl || "",
-      }));
-
-      setCoins(formattedCoins);
+      setCoins(fetchedCoins);
     } catch (error) {
       console.error(error);
     }
@@ -78,17 +69,21 @@ const Home = () => {
     setSearchTerm(searchTerm);
   };
 
-  const toggleFavorite = (index) => {
+  const toggleFavorite = (uuid) => {
     setFavorites((prevFavorites) => {
-      const updatedFavorites = [...prevFavorites];
-      if (updatedFavorites.includes(index)) {
-        updatedFavorites.splice(updatedFavorites.indexOf(index), 1);
+      if (prevFavorites.includes(uuid)) {
+        // Remove from favorites
+        const updatedFavorites = prevFavorites.filter(
+          (favUuid) => favUuid !== uuid
+        );
+        showNotification("Removed from favorites");
+        return updatedFavorites;
       } else {
-        updatedFavorites.push(index);
-        const coinName = coins.find((coin) => coin.index === index)?.name;
-        showNotification(`You added ${coinName} in your favorites!`);
+        // Add to favorites
+        const updatedFavorites = [...prevFavorites, uuid];
+        showNotification("Added to favorites");
+        return updatedFavorites;
       }
-      return updatedFavorites;
     });
   };
 
@@ -123,7 +118,21 @@ const Home = () => {
 
   useEffect(() => {
     calculateResult();
-  }, [calculatorInputValue, selectedCoin, calculateResult]);
+  }, [calculatorInputValue, selectedCoin]);
+  const filteredCoins = coins.filter((coin) =>
+    coin.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const renderSparklineGraph = (coin) => {
+    return (
+      <Sparklines
+        data={coin.sparkline.map((el) => parseFloat(el))}
+        width={80}
+        height={30}
+      >
+        <SparklinesLine className="sparkline" color="blue" />
+      </Sparklines>
+    );
+  };
 
   return (
     <Container>
@@ -142,40 +151,37 @@ const Home = () => {
           <CellHeader>Price</CellHeader>
           <CellHeader>24h Volume</CellHeader>
           <CellHeader>Market Cap</CellHeader>
+          <CellHeader>Sparkline</CellHeader>
           <CellHeader>Favorite</CellHeader>
           <CellHeader>Calculator</CellHeader>
         </Row>
-        {coins
-          .filter((coin) =>
-            coin.name.toLowerCase().includes(searchTerm.toLowerCase())
-          )
-          .slice(0, 10)
-          .map((coin) => (
-            <Row key={coin.index}>
-              <Cell className="Cell">{coin.index}.</Cell>
-              <Cell>
-                <CoinLogo src={coin.coinIconUrl} alt={`${coin.name} logo`} />
-              </Cell>
-              <Cell>{coin.name}</Cell>
-              <Cell>{coin.price}</Cell>
-              <Cell>{coin.volume}</Cell>
-              <Cell>{coin.marketCap}</Cell>
-              <Cell>
-                <HeartIcon
-                  src={favorites.includes(coin.index) ? heartFull : heartEmpty}
-                  alt="Favorite"
-                  onClick={() => toggleFavorite(coin.index)}
-                />
-              </Cell>
-              <Cell>
-                <CalculatorIcon
-                  onClick={() => openCalculatorModal(coin.name)}
-                  src={calculator}
-                  alt="Calculator"
-                />
-              </Cell>
-            </Row>
-          ))}
+        {filteredCoins.map((coin) => (
+          <Row key={coin.uuid}>
+            <Cell>{coin.rank}.</Cell>
+            <Cell>
+              <CoinLogo src={coin.iconUrl} alt={`${coin.name} logo`} />
+            </Cell>
+            <Cell>{coin.name}</Cell>
+            <Cell>{coin.price}</Cell>
+            <Cell>{coin["24hVolume"]}</Cell>
+            <Cell>{coin.marketCap}</Cell>
+            <Cell>{renderSparklineGraph(coin)}</Cell>
+            <Cell>
+              <HeartIcon
+                src={favorites.includes(coin.uuid) ? heartFull : heartEmpty}
+                alt="Favorite"
+                onClick={() => toggleFavorite(coin.uuid)}
+              />
+            </Cell>
+            <Cell>
+              <CalculatorIcon
+                onClick={() => openCalculatorModal(coin.name)}
+                src={calculator}
+                alt="Calculator"
+              />
+            </Cell>
+          </Row>
+        ))}
       </Table>
       {notification && (
         <Notification style={{ left: notificationLeftPosition }}>
