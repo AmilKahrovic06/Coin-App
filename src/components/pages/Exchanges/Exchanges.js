@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useFavoriteCoins } from "../../../contexts/FavoriteCoinsContext";
 import { Table, Image } from "antd";
 import "./Exchanges.css";
 const Exchanges = () => {
