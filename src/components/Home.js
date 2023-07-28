@@ -131,7 +131,6 @@ const Home = () => {
     coin.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Display 10 coins initially when no search term is provided
   const displayedCoins = searchTerm
     ? filteredCoins
     : filteredCoins.slice(0, 10);

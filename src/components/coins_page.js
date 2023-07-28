@@ -73,7 +73,7 @@ const Coins = () => {
         volume: coin["24hVolume"],
         marketCap: coin.marketCap,
         coinIconUrl: coin.iconUrl || "",
-        sparkline: coin.sparkline || [], // Graph data
+        sparkline: coin.sparkline || [],
         uuid: coin.uuid,
       }));
 
