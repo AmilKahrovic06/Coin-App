@@ -131,6 +131,11 @@ const Home = () => {
     coin.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Display 10 coins initially when no search term is provided
+  const displayedCoins = searchTerm
+    ? filteredCoins
+    : filteredCoins.slice(0, 10);
+
   return (
     <Container>
       <Heading>Top Cryptos</Heading>
@@ -152,7 +157,7 @@ const Home = () => {
           <CellHeader>Favorite</CellHeader>
           <CellHeader>Calculator</CellHeader>
         </Row>
-        {filteredCoins.map((coin) => (
+        {displayedCoins.map((coin) => (
           <Row key={coin.uuid}>
             <Cell>{coin.rank}.</Cell>
             <Cell>
@@ -163,6 +168,7 @@ const Home = () => {
             <Cell>{coin["24hVolume"]}</Cell>
             <Cell>{coin.marketCap}</Cell>
             <Cell>{renderSparklineGraph(coin)}</Cell>
+
             <Cell>
               <HeartIcon
                 src={favoriteCoins.includes(coin.uuid) ? heartFull : heartEmpty}

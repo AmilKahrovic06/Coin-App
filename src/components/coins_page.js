@@ -10,13 +10,13 @@ import {
   Cell,
   HeartIcon,
   CoinLogo,
+  Notification,
   CalculatorIcon,
   ModalContent,
   CloseButton,
   Modal,
   CalculatorInput,
   Result,
-  Notification,
 } from "./Home.styled";
 import heartEmpty from "./images/heart-empty.png";
 import heartFull from "./images/heart-full.png";
@@ -27,6 +27,7 @@ import { useFavoriteCoins } from "../contexts/FavoriteCoinsContext";
 const Coins = () => {
   const [coins, setCoins] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [notification, setNotification] = useState(null);
   const [notificationLeftPosition, setNotificationLeftPosition] =
     useState("-200px");
@@ -34,6 +35,8 @@ const Coins = () => {
   const [calculatorResult, setCalculatorResult] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState("");
   const [showCalculatorModal, setShowCalculatorModal] = useState(false);
+  const coinsPerPage = 10;
+  const pagesToShow = 5; // Broj stranica koje prikazujemo odjednom
   const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
 
   useEffect(() => {
@@ -50,7 +53,7 @@ const Coins = () => {
         "tiers[0]": "1",
         orderBy: "marketCap",
         orderDirection: "desc",
-        limit: "1000",
+        limit: "200",
         offset: "0",
       },
       headers: {
@@ -62,11 +65,31 @@ const Coins = () => {
     try {
       const response = await axios.request(options);
       const fetchedCoins = response.data.data.coins;
-      setCoins(fetchedCoins);
+
+      const formattedCoins = fetchedCoins.map((coin, index) => ({
+        index: index + 1,
+        name: coin.name,
+        price: coin.price,
+        volume: coin["24hVolume"],
+        marketCap: coin.marketCap,
+        coinIconUrl: coin.iconUrl || "",
+        sparkline: coin.sparkline || [], // Graph data
+        uuid: coin.uuid,
+      }));
+
+      setCoins(formattedCoins);
     } catch (error) {
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const totalNumPages = Math.ceil(coins.length / coinsPerPage);
+
+    if (currentPage > totalNumPages && totalNumPages > 0) {
+      setCurrentPage(totalNumPages);
+    }
+  }, [coins, currentPage]);
 
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
@@ -89,6 +112,18 @@ const Coins = () => {
     setTimeout(() => {
       setNotificationLeftPosition("-2000px");
     }, 3000);
+  };
+
+  const renderSparklineGraph = (coin) => {
+    return (
+      <Sparklines
+        data={coin.sparkline.map((el) => parseFloat(el))}
+        width={80}
+        height={30}
+      >
+        <SparklinesLine className="sparkline" color="blue" />
+      </Sparklines>
+    );
   };
 
   const openCalculatorModal = (coinName) => {
@@ -115,21 +150,26 @@ const Coins = () => {
     calculateResult();
   }, [calculatorInputValue, selectedCoin]);
 
-  const renderSparklineGraph = (coin) => {
-    return (
-      <Sparklines
-        data={coin.sparkline.map((el) => parseFloat(el))}
-        width={80}
-        height={30}
-      >
-        <SparklinesLine className="sparkline" color="blue" />
-      </Sparklines>
-    );
+  const indexOfLastCoin = currentPage * coinsPerPage;
+  const indexOfFirstCoin = indexOfLastCoin - coinsPerPage;
+  const currentCoins = coins.slice(indexOfFirstCoin, indexOfLastCoin);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
-  const filteredCoins = coins.filter((coin) =>
-    coin.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const pageNumbers = [];
+  for (
+    let i = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+    i <=
+    Math.min(
+      currentPage + Math.floor(pagesToShow / 2),
+      Math.ceil(coins.length / coinsPerPage)
+    );
+    i++
+  ) {
+    pageNumbers.push(i);
+  }
 
   return (
     <Container>
@@ -152,15 +192,15 @@ const Coins = () => {
           <CellHeader>Favorite</CellHeader>
           <CellHeader>Calculator</CellHeader>
         </Row>
-        {filteredCoins.map((coin) => (
+        {currentCoins.map((coin) => (
           <Row key={coin.uuid}>
-            <Cell>{coin.rank}.</Cell>
+            <Cell>{coin.index}.</Cell>
             <Cell>
-              <CoinLogo src={coin.iconUrl} alt={`${coin.name} logo`} />
+              <CoinLogo src={coin.coinIconUrl} alt={`${coin.name} logo`} />
             </Cell>
             <Cell>{coin.name}</Cell>
             <Cell>{coin.price}</Cell>
-            <Cell>{coin["24hVolume"]}</Cell>
+            <Cell>{coin.volume}</Cell>
             <Cell>{coin.marketCap}</Cell>
             <Cell>{renderSparklineGraph(coin)}</Cell>
             <Cell>
@@ -180,6 +220,17 @@ const Coins = () => {
           </Row>
         ))}
       </Table>
+      <div>
+        {pageNumbers.map((pageNumber) => (
+          <button
+            key={pageNumber}
+            onClick={() => paginate(pageNumber)}
+            disabled={pageNumber === currentPage}
+          >
+            {pageNumber}
+          </button>
+        ))}
+      </div>
       {notification && (
         <Notification style={{ left: notificationLeftPosition }}>
           <img
@@ -187,7 +238,6 @@ const Coins = () => {
             alt="Full Heart"
             style={{ width: "20px", height: "20px", marginRight: "5px" }}
           />
-
           {notification}
         </Notification>
       )}
