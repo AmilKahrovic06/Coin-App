@@ -1,39 +1,36 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
-  Heading,
-  Input,
   Container,
+  Heading,
   Table,
   Row,
   CellHeader,
   Cell,
-  HeartIcon,
   CoinLogo,
-  Notification,
+  HeartIcon,
   CalculatorIcon,
-  Modal,
   ModalContent,
   CloseButton,
+  Modal,
+  CalculatorInput,
+  Result,
+  Notification,
 } from "./Home.styled";
-import heartEmpty from "./images/heart-empty.png";
+import { useFavoriteCoins } from "../contexts/FavoriteCoinsContext";
+import axios from "axios";
+import { Sparklines, SparklinesLine } from "react-sparklines";
 import heartFull from "./images/heart-full.png";
 import calculator from "./images/calculator.png";
-import { Sparklines, SparklinesLine } from "react-sparklines";
-
-const Home = () => {
-  const [coins, setCoins] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [favorites, setFavorites] = useState([]);
-  const [notification, setNotification] = useState(null);
-  const [notificationLeftPosition, setNotificationLeftPosition] =
-    useState("-200px");
+const Favorites = () => {
+  const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
+  const [allCoins, setAllCoins] = useState([]);
   const [showCalculatorModal, setShowCalculatorModal] = useState(false);
   const [calculatorInputValue, setCalculatorInputValue] = useState(0);
   const [calculatorResult, setCalculatorResult] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [notification, setNotification] = useState(null);
+  const [notificationLeftPosition, setNotificationLeftPosition] =
+    useState("-200px");
 
   useEffect(() => {
     fetchCoins();
@@ -61,33 +58,19 @@ const Home = () => {
     try {
       const response = await axios.request(options);
       const fetchedCoins = response.data.data.coins;
-      setCoins(fetchedCoins);
+      setAllCoins(fetchedCoins);
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleSearch = (searchTerm) => {
-    setSearchTerm(searchTerm);
-    setPage(1); // Reset the page to 1 when a new search term is entered
-  };
-
-  const toggleFavorite = (uuid) => {
-    setFavorites((prevFavorites) => {
-      if (prevFavorites.includes(uuid)) {
-        // Remove from favorites
-        const updatedFavorites = prevFavorites.filter(
-          (favUuid) => favUuid !== uuid
-        );
-        showNotification("Removed from favorites");
-        return updatedFavorites;
-      } else {
-        // Add to favorites
-        const updatedFavorites = [...prevFavorites, uuid];
-        showNotification("Added to favorites");
-        return updatedFavorites;
-      }
-    });
+  const toggleFavoriteCoin = (uuid) => {
+    toggleFavorite(uuid);
+    showNotification(
+      favoriteCoins.includes(uuid)
+        ? `You removed ${getCoinName(uuid)} from favorites`
+        : `You removed ${getCoinName(uuid)} from favorites`
+    );
   };
 
   const showNotification = (message) => {
@@ -109,7 +92,9 @@ const Home = () => {
   };
 
   const calculateResult = () => {
-    const selectedCoinData = coins.find((coin) => coin.name === selectedCoin);
+    const selectedCoinData = allCoins.find(
+      (coin) => coin.name === selectedCoin
+    );
     if (selectedCoinData) {
       const price = parseFloat(
         selectedCoinData.price.replace(/[^0-9.-]+/g, "")
@@ -135,25 +120,18 @@ const Home = () => {
     );
   };
 
-  // Function to filter coins based on search term
-  const filteredCoins = coins.filter((coin) =>
-    coin.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getCoinName = (uuid) => {
+    const coin = allCoins.find((coin) => coin.uuid === uuid);
+    return coin ? coin.name : "";
+  };
 
-  // Calculate the index of the first and last coins to display based on the current page and items per page
-  const lastIndex = page * perPage;
-  const firstIndex = lastIndex - perPage;
-  const displayedCoins = filteredCoins.slice(firstIndex, lastIndex);
+  const filteredCoins = allCoins.filter((coin) =>
+    favoriteCoins.includes(coin.uuid)
+  );
 
   return (
     <Container>
-      <Heading>Top Cryptos</Heading>
-      <Input
-        type="text"
-        placeholder="Search cryptos here..."
-        value={searchTerm}
-        onChange={(e) => handleSearch(e.target.value)}
-      />
+      <Heading>My Favorite Cryptos</Heading>
       <Table>
         <Row>
           <CellHeader>Rank</CellHeader>
@@ -166,7 +144,7 @@ const Home = () => {
           <CellHeader>Favorite</CellHeader>
           <CellHeader>Calculator</CellHeader>
         </Row>
-        {displayedCoins.map((coin) => (
+        {filteredCoins.map((coin) => (
           <Row key={coin.uuid}>
             <Cell>{coin.rank}.</Cell>
             <Cell>
@@ -179,9 +157,9 @@ const Home = () => {
             <Cell>{renderSparklineGraph(coin)}</Cell>
             <Cell>
               <HeartIcon
-                src={favorites.includes(coin.uuid) ? heartFull : heartEmpty}
+                src={heartFull}
                 alt="Favorite"
-                onClick={() => toggleFavorite(coin.uuid)}
+                onClick={() => toggleFavoriteCoin(coin.uuid)}
               />
             </Cell>
             <Cell>
@@ -211,12 +189,12 @@ const Home = () => {
             <CloseButton onClick={closeCalculatorModal}>Close</CloseButton>
             <h2>Calculator</h2>
             <p>Enter a value for {selectedCoin}:</p>
-            <Input
+            <CalculatorInput
               type="number"
               value={calculatorInputValue}
               onChange={(e) => setCalculatorInputValue(e.target.value)}
             />
-            <p>Result: ${calculatorResult}</p>
+            <Result>Result: ${calculatorResult}</Result>
           </ModalContent>
         </Modal>
       )}
@@ -224,4 +202,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Favorites;
