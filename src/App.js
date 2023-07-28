@@ -5,6 +5,7 @@ import Header from "./components/pages/header";
 import Footer from "./components/Footer/footer";
 import Profile from "./components/pages/account_page";
 import Exchanges from "./components/pages/Exchanges/Exchanges";
+import Coin from "./components/pages/Coin/coin_detail";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="favorite_page" element={<Favorite />} />
         <Route path="about_us" element={<AboutUsPage />} /> */}
         <Route path="account_page" element={<Profile />} />
+        <Route path="coins_detail" element={<Coin />} />
         <Route path="/exchanges_page" element={<Exchanges />} />
         {/* Other routes go here */}
       </Routes>

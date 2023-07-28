@@ -131,7 +131,7 @@ const Home = () => {
         height={30}
       >
         <SparklinesLine className="sparkline" color="blue" />
-      </Sparklines>
+      </Sparklines>   
     );
   };
 
