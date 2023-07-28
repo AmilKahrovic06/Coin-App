@@ -75,10 +75,10 @@ const Coins = () => {
   const toggleFavoriteCoin = (uuid, name) => {
     if (favoriteCoins.includes(uuid)) {
       toggleFavorite(uuid);
-      showNotification(`YOU REMOVED ${name} FROM FAVORITES`);
+      showNotification(`You removed ${name} from favorites!`);
     } else {
       toggleFavorite(uuid);
-      showNotification(`YOU ADDED ${name} TO FAVORITES`);
+      showNotification(`You added ${name} to favorites!`);
     }
   };
 
