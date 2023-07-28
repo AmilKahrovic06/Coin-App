@@ -10,10 +10,8 @@ export const FavoriteCoinsProvider = ({ children }) => {
   const toggleFavorite = (uuid) => {
     setFavoriteCoins((prevFavoriteCoins) => {
       if (prevFavoriteCoins.includes(uuid)) {
-        // Remove from favorites
         return prevFavoriteCoins.filter((favUuid) => favUuid !== uuid);
       } else {
-        // Add to favorites
         return [...prevFavoriteCoins, uuid];
       }
     });

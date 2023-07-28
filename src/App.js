@@ -16,7 +16,6 @@ function App() {
         <Header />
         <Routes>
           <Route index element={<Home />} />
-
           <Route path="favorites_page" element={<Favorites />} />
           <Route path="coins_page" element={<Coins />} />
           <Route path="account_page" element={<Profile />} />

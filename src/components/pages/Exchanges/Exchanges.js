@@ -36,7 +36,6 @@ const Exchanges = () => {
     }
   };
 
-  // Define the columns for the table
   const columns = [
     {
       title: "Rank",
