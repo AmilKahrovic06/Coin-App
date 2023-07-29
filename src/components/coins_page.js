@@ -36,6 +36,7 @@ const Coins = () => {
   const [calculatorResult, setCalculatorResult] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState("");
   const [showCalculatorModal, setShowCalculatorModal] = useState(false);
+  const [filteredCoins, setFilteredCoins] = useState([]); // Dodajemo filteredCoins state
   const coinsPerPage = 10;
   const pagesToShow = 10;
   const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
@@ -43,6 +44,7 @@ const Coins = () => {
   useEffect(() => {
     fetchCoins();
   }, []);
+
   const paginationStyles = {
     display: "flex",
     justifyContent: "center",
@@ -93,21 +95,27 @@ const Coins = () => {
       }));
 
       setCoins(formattedCoins);
+      setFilteredCoins(formattedCoins); // Inicijalno postavljamo filteredCoins na sve kripto valute
     } catch (error) {
       console.error(error);
     }
   };
 
   useEffect(() => {
-    const totalNumPages = Math.ceil(coins.length / coinsPerPage);
+    const totalNumPages = Math.ceil(filteredCoins.length / coinsPerPage);
 
     if (currentPage > totalNumPages && totalNumPages > 0) {
       setCurrentPage(totalNumPages);
     }
-  }, [coins, currentPage]);
+  }, [filteredCoins, currentPage]);
 
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
+    const filteredResults = coins.filter((coin) =>
+      coin.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCoins(filteredResults);
+    setCurrentPage(1); // Resetujemo trenutnu stranicu na prvu kada menjamo pojam pretrage
   };
 
   const toggleFavoriteCoin = (uuid, name) => {
@@ -151,7 +159,9 @@ const Coins = () => {
   };
 
   const calculateResult = () => {
-    const selectedCoinData = coins.find((coin) => coin.name === selectedCoin);
+    const selectedCoinData = filteredCoins.find(
+      (coin) => coin.name === selectedCoin
+    );
     if (selectedCoinData) {
       const price = parseFloat(
         selectedCoinData.price.replace(/[^0-9.-]+/g, "")
@@ -168,7 +178,7 @@ const Coins = () => {
   const indexOfLastCoin = currentPage * coinsPerPage;
 
   const indexOfFirstCoin = indexOfLastCoin - coinsPerPage;
-  const currentCoins = coins.slice(indexOfFirstCoin, indexOfLastCoin);
+  const currentCoins = filteredCoins.slice(indexOfFirstCoin, indexOfLastCoin);
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -180,7 +190,7 @@ const Coins = () => {
     i <=
     Math.min(
       currentPage + Math.floor(pagesToShow / 2),
-      Math.ceil(coins.length / coinsPerPage)
+      Math.ceil(filteredCoins.length / coinsPerPage)
     );
     i++
   ) {
