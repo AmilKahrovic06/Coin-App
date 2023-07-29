@@ -37,7 +37,7 @@ const Coins = () => {
   const [selectedCoin, setSelectedCoin] = useState("");
   const [showCalculatorModal, setShowCalculatorModal] = useState(false);
   const coinsPerPage = 10;
-  const pagesToShow = 5; // Broj stranica koje prikazujemo odjednom
+  const pagesToShow = 10;
   const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
 
   useEffect(() => {
