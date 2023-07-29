@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import {
+  Container,
   Heading,
   Input,
-  Container,
   Table,
   Row,
   CellHeader,
@@ -12,32 +13,50 @@ import {
   CoinLogo,
   Notification,
   CalculatorIcon,
-  Modal,
   ModalContent,
   CloseButton,
+  Modal,
+  CalculatorInput,
+  Result,
 } from "./Home.styled";
 import heartEmpty from "./images/heart-empty.png";
 import heartFull from "./images/heart-full.png";
 import calculator from "./images/calculator.png";
 import { Sparklines, SparklinesLine } from "react-sparklines";
+import { useFavoriteCoins } from "../contexts/FavoriteCoinsContext";
 
-const Home = () => {
+const Coins = () => {
   const [coins, setCoins] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [favorites, setFavorites] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [notification, setNotification] = useState(null);
   const [notificationLeftPosition, setNotificationLeftPosition] =
     useState("-200px");
-  const [showCalculatorModal, setShowCalculatorModal] = useState(false);
   const [calculatorInputValue, setCalculatorInputValue] = useState(0);
   const [calculatorResult, setCalculatorResult] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState("");
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [showCalculatorModal, setShowCalculatorModal] = useState(false);
+  const coinsPerPage = 10;
+  const pagesToShow = 10;
+  const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
 
   useEffect(() => {
     fetchCoins();
   }, []);
+  const paginationStyles = {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "1rem",
+  };
+
+  const paginationButtonStyles = {
+    padding: "0.5rem 1rem",
+    margin: "0.2rem",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    backgroundColor: "#f7f7f7",
+    cursor: "pointer",
+  };
 
   const fetchCoins = async () => {
     const options = {
@@ -49,7 +68,7 @@ const Home = () => {
         "tiers[0]": "1",
         orderBy: "marketCap",
         orderDirection: "desc",
-        limit: "1000",
+        limit: "200",
         offset: "0",
       },
       headers: {
@@ -61,33 +80,44 @@ const Home = () => {
     try {
       const response = await axios.request(options);
       const fetchedCoins = response.data.data.coins;
-      setCoins(fetchedCoins);
+
+      const formattedCoins = fetchedCoins.map((coin, index) => ({
+        index: index + 1,
+        name: coin.name,
+        price: coin.price,
+        volume: coin["24hVolume"],
+        marketCap: coin.marketCap,
+        coinIconUrl: coin.iconUrl || "",
+        sparkline: coin.sparkline || [],
+        uuid: coin.uuid,
+      }));
+
+      setCoins(formattedCoins);
     } catch (error) {
       console.error(error);
     }
   };
 
+  useEffect(() => {
+    const totalNumPages = Math.ceil(coins.length / coinsPerPage);
+
+    if (currentPage > totalNumPages && totalNumPages > 0) {
+      setCurrentPage(totalNumPages);
+    }
+  }, [coins, currentPage]);
+
   const handleSearch = (searchTerm) => {
     setSearchTerm(searchTerm);
-    setPage(1); // Reset the page to 1 when a new search term is entered
   };
 
-  const toggleFavorite = (uuid) => {
-    setFavorites((prevFavorites) => {
-      if (prevFavorites.includes(uuid)) {
-        // Remove from favorites
-        const updatedFavorites = prevFavorites.filter(
-          (favUuid) => favUuid !== uuid
-        );
-        showNotification("Removed from favorites");
-        return updatedFavorites;
-      } else {
-        // Add to favorites
-        const updatedFavorites = [...prevFavorites, uuid];
-        showNotification("Added to favorites");
-        return updatedFavorites;
-      }
-    });
+  const toggleFavoriteCoin = (uuid, name) => {
+    if (favoriteCoins.includes(uuid)) {
+      toggleFavorite(uuid);
+      showNotification(`You removed ${name} from favorites!`);
+    } else {
+      toggleFavorite(uuid);
+      showNotification(`You added ${name} to favorites!`);
+    }
   };
 
   const showNotification = (message) => {
@@ -97,6 +127,18 @@ const Home = () => {
     setTimeout(() => {
       setNotificationLeftPosition("-2000px");
     }, 3000);
+  };
+
+  const renderSparklineGraph = (coin) => {
+    return (
+      <Sparklines
+        data={coin.sparkline.map((el) => parseFloat(el))}
+        width={80}
+        height={30}
+      >
+        <SparklinesLine className="sparkline" color="blue" />
+      </Sparklines>
+    );
   };
 
   const openCalculatorModal = (coinName) => {
@@ -123,27 +165,27 @@ const Home = () => {
     calculateResult();
   }, [calculatorInputValue, selectedCoin]);
 
-  const renderSparklineGraph = (coin) => {
-    return (
-      <Sparklines
-        data={coin.sparkline.map((el) => parseFloat(el))}
-        width={80}
-        height={30}
-      >
-        <SparklinesLine className="sparkline" color="blue" />
-      </Sparklines>   
-    );
+  const indexOfLastCoin = currentPage * coinsPerPage;
+
+  const indexOfFirstCoin = indexOfLastCoin - coinsPerPage;
+  const currentCoins = coins.slice(indexOfFirstCoin, indexOfLastCoin);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
-  // Function to filter coins based on search term
-  const filteredCoins = coins.filter((coin) =>
-    coin.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Calculate the index of the first and last coins to display based on the current page and items per page
-  const lastIndex = page * perPage;
-  const firstIndex = lastIndex - perPage;
-  const displayedCoins = filteredCoins.slice(firstIndex, lastIndex);
+  const pageNumbers = [];
+  for (
+    let i = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
+    i <=
+    Math.min(
+      currentPage + Math.floor(pagesToShow / 2),
+      Math.ceil(coins.length / coinsPerPage)
+    );
+    i++
+  ) {
+    pageNumbers.push(i);
+  }
 
   return (
     <Container>
@@ -166,22 +208,24 @@ const Home = () => {
           <CellHeader>Favorite</CellHeader>
           <CellHeader>Calculator</CellHeader>
         </Row>
-        {displayedCoins.map((coin) => (
+        {currentCoins.map((coin) => (
           <Row key={coin.uuid}>
-            <Cell>{coin.rank}.</Cell>
+            <Cell>{coin.index}.</Cell>
             <Cell>
-              <CoinLogo src={coin.iconUrl} alt={`${coin.name} logo`} />
+              <Link to={`/coin/${coin.uuid}`}>
+                <CoinLogo src={coin.coinIconUrl} alt={`${coin.name} logo`} />
+              </Link>
             </Cell>
             <Cell>{coin.name}</Cell>
             <Cell>{coin.price}</Cell>
-            <Cell>{coin["24hVolume"]}</Cell>
+            <Cell>{coin.volume}</Cell>
             <Cell>{coin.marketCap}</Cell>
             <Cell>{renderSparklineGraph(coin)}</Cell>
             <Cell>
               <HeartIcon
-                src={favorites.includes(coin.uuid) ? heartFull : heartEmpty}
+                src={favoriteCoins.includes(coin.uuid) ? heartFull : heartEmpty}
                 alt="Favorite"
-                onClick={() => toggleFavorite(coin.uuid)}
+                onClick={() => toggleFavoriteCoin(coin.uuid, coin.name)}
               />
             </Cell>
             <Cell>
@@ -194,6 +238,18 @@ const Home = () => {
           </Row>
         ))}
       </Table>
+      <div style={paginationStyles}>
+        {pageNumbers.map((pageNumber) => (
+          <button
+            key={pageNumber}
+            onClick={() => paginate(pageNumber)}
+            disabled={pageNumber === currentPage}
+            style={paginationButtonStyles}
+          >
+            {pageNumber}
+          </button>
+        ))}
+      </div>
       {notification && (
         <Notification style={{ left: notificationLeftPosition }}>
           <img
@@ -204,19 +260,18 @@ const Home = () => {
           {notification}
         </Notification>
       )}
-
       {showCalculatorModal && (
         <Modal>
           <ModalContent>
             <CloseButton onClick={closeCalculatorModal}>Close</CloseButton>
             <h2>Calculator</h2>
             <p>Enter a value for {selectedCoin}:</p>
-            <Input
+            <CalculatorInput
               type="number"
               value={calculatorInputValue}
               onChange={(e) => setCalculatorInputValue(e.target.value)}
             />
-            <p>Result: ${calculatorResult}</p>
+            <Result>Result: ${calculatorResult}</Result>
           </ModalContent>
         </Modal>
       )}
@@ -224,4 +279,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Coins;

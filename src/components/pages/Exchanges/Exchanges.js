@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+
 import { Table, Image } from "antd";
 import "./Exchanges.css";
 const Exchanges = () => {
@@ -35,7 +36,6 @@ const Exchanges = () => {
     }
   };
 
-  // Define the columns for the table
   const columns = [
     {
       title: "Rank",

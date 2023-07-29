@@ -77,7 +77,6 @@ export const CoinLogo = styled.img`
 export const Notification = styled.div`
   position: fixed;
   bottom: 20px;
-  left: -200px;
   background-color: #007bff;
   color: white;
   padding: 10px;
@@ -143,6 +142,7 @@ export const CalculatorInput = styled.input`
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
+  border-radius: 20px;
 `;
 
 export const Result = styled.p`
