@@ -43,6 +43,20 @@ const Coins = () => {
   useEffect(() => {
     fetchCoins();
   }, []);
+  const paginationStyles = {
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "1rem",
+  };
+
+  const paginationButtonStyles = {
+    padding: "0.5rem 1rem",
+    margin: "0.2rem",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    backgroundColor: "#f7f7f7",
+    cursor: "pointer",
+  };
 
   const fetchCoins = async () => {
     const options = {
@@ -224,12 +238,13 @@ const Coins = () => {
           </Row>
         ))}
       </Table>
-      <div>
+      <div style={paginationStyles}>
         {pageNumbers.map((pageNumber) => (
           <button
             key={pageNumber}
             onClick={() => paginate(pageNumber)}
             disabled={pageNumber === currentPage}
+            style={paginationButtonStyles}
           >
             {pageNumber}
           </button>
