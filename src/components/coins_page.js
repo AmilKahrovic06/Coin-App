@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import {
   Container,
   Heading,
@@ -151,6 +152,7 @@ const Coins = () => {
   }, [calculatorInputValue, selectedCoin]);
 
   const indexOfLastCoin = currentPage * coinsPerPage;
+
   const indexOfFirstCoin = indexOfLastCoin - coinsPerPage;
   const currentCoins = coins.slice(indexOfFirstCoin, indexOfLastCoin);
 
@@ -196,7 +198,9 @@ const Coins = () => {
           <Row key={coin.uuid}>
             <Cell>{coin.index}.</Cell>
             <Cell>
-              <CoinLogo src={coin.coinIconUrl} alt={`${coin.name} logo`} />
+              <Link to={`/coin/${coin.uuid}`}>
+                <CoinLogo src={coin.coinIconUrl} alt={`${coin.name} logo`} />
+              </Link>
             </Cell>
             <Cell>{coin.name}</Cell>
             <Cell>{coin.price}</Cell>

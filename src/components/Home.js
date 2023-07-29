@@ -23,7 +23,9 @@ import heartFull from "./images/heart-full.png";
 import calculator from "./images/calculator.png";
 import { Sparklines, SparklinesLine } from "react-sparklines";
 import { useFavoriteCoins } from "../contexts/FavoriteCoinsContext";
-
+import CoinDetails from "../Coin/Coin";
+import { Link } from "react-router-dom";
+import { useCoinContext } from "../contexts/CoinContext";
 const Home = () => {
   const [coins, setCoins] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -35,7 +37,7 @@ const Home = () => {
   const [selectedCoin, setSelectedCoin] = useState("");
   const [showCalculatorModal, setShowCalculatorModal] = useState(false);
   const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
-
+  const { setSelected } = useCoinContext();
   useEffect(() => {
     fetchCoins();
   }, []);
@@ -134,7 +136,9 @@ const Home = () => {
   const displayedCoins = searchTerm
     ? filteredCoins
     : filteredCoins.slice(0, 10);
-
+  const handleLogoClick = (coin) => {
+    setSelectedCoin(coin);
+  };
   return (
     <Container>
       <Heading>Top Cryptos</Heading>
@@ -160,7 +164,13 @@ const Home = () => {
           <Row key={coin.uuid}>
             <Cell>{coin.rank}.</Cell>
             <Cell>
-              <CoinLogo src={coin.iconUrl} alt={`${coin.name} logo`} />
+              <Link to={`/coin/${coin.uuid}`}>
+                <CoinLogo
+                  src={coin.iconUrl}
+                  alt={`${coin.name} logo`}
+                  onClick={() => handleLogoClick(coin)}
+                />
+              </Link>
             </Cell>
             <Cell>{coin.name}</Cell>
             <Cell>{coin.price}</Cell>
