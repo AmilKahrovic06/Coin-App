@@ -5,12 +5,15 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { FavoriteCoinsProvider } from "./contexts/FavoriteCoinsContext";
+import { CoinContextProvider } from "./contexts/CoinContext";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <FavoriteCoinsProvider>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <CoinContextProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </CoinContextProvider>
   </FavoriteCoinsProvider>
 );
 

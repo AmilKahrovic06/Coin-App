@@ -9,19 +9,24 @@ import Coins from "./components/coins_page";
 import AboutUsPage from "./components/pages/About Us/about_us";
 import Favorites from "./components/Favorites";
 import { FavoriteCoinsProvider } from "./contexts/FavoriteCoinsContext";
+import { CoinContextProvider } from "./contexts/CoinContext";
+import CoinDetails from "./Coin/Coin";
 function App() {
   return (
     <div>
       <FavoriteCoinsProvider>
-        <Header />
-        <Routes>
-          <Route index element={<Home />} />
-          <Route path="favorites_page" element={<Favorites />} />
-          <Route path="coins_page" element={<Coins />} />
-          <Route path="account_page" element={<Profile />} />
-          <Route path="exchanges_page" element={<Exchanges />} />
-          <Route path="about_us" element={<AboutUsPage />} />
-        </Routes>
+        <CoinContextProvider>
+          <Header />
+          <Routes>
+            <Route index element={<Home />} />
+            <Route path="/coin/:uuid" element={<CoinDetails />} />
+            <Route path="favorites_page" element={<Favorites />} />
+            <Route path="coins_page" element={<Coins />} />
+            <Route path="account_page" element={<Profile />} />
+            <Route path="exchanges_page" element={<Exchanges />} />
+            <Route path="about_us" element={<AboutUsPage />} />
+          </Routes>
+        </CoinContextProvider>
         <Footer />
       </FavoriteCoinsProvider>
     </div>
