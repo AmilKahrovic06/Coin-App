@@ -14,7 +14,7 @@ import GitHubIcon from "@mui/icons-material/GitHub";
 import RedditIcon from "@mui/icons-material/Reddit";
 import TelegramIcon from "@mui/icons-material/Telegram";
 import EventNoteIcon from "@mui/icons-material/EventNote";
-
+import "./Coin.css";
 import { Sparklines, SparklinesLine } from "react-sparklines";
 
 function Coin() {
