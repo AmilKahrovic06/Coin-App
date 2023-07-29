@@ -36,7 +36,7 @@ const Coins = () => {
   const [calculatorResult, setCalculatorResult] = useState(0);
   const [selectedCoin, setSelectedCoin] = useState("");
   const [showCalculatorModal, setShowCalculatorModal] = useState(false);
-  const [filteredCoins, setFilteredCoins] = useState([]); // Dodajemo filteredCoins state
+  const [filteredCoins, setFilteredCoins] = useState([]);
   const coinsPerPage = 10;
   const pagesToShow = 10;
   const { favoriteCoins, toggleFavorite } = useFavoriteCoins();
@@ -95,7 +95,7 @@ const Coins = () => {
       }));
 
       setCoins(formattedCoins);
-      setFilteredCoins(formattedCoins); // Inicijalno postavljamo filteredCoins na sve kripto valute
+      setFilteredCoins(formattedCoins);
     } catch (error) {
       console.error(error);
     }
@@ -115,7 +115,7 @@ const Coins = () => {
       coin.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCoins(filteredResults);
-    setCurrentPage(1); // Resetujemo trenutnu stranicu na prvu kada menjamo pojam pretrage
+    setCurrentPage(1);
   };
 
   const toggleFavoriteCoin = (uuid, name) => {
